@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "coa-display",
+	"version": "${version}",
+	"name": "Coa display",
+	"description": "Displays total coins in your crown of avarice!",
+	"authors": [
+		"ab2891"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/coa-display/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.coadisplay.CoaDisplay"
+		],
+		"client": [
+			"com.ab2891.coadisplay.CoaDisplayClient"
+		],
+		"modmenu": [
+			"com.ab2891.coadisplay.compat.ModMenuCompat"
+		]
+	},
+	"mixins": [
+		"coa-display.mixins.json",
+		{
+			"config": "coa-display.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
