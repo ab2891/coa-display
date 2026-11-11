@@ -2,9 +2,9 @@ package com.ab2891.coadisplay.diana.guess;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 
 @Environment(EnvType.CLIENT)
 public class PacketFilters {
@@ -15,32 +15,32 @@ public class PacketFilters {
         return Math.abs(a - b) <= eps;
     }
 
-    public static boolean isArrowDust(ParticleS2CPacket p) {
-        if (p.getParameters().getType() != ParticleTypes.DUST) {
+    public static boolean isArrowDust(ClientboundLevelParticlesPacket p) {
+        if (p.getParticle().getType() != ParticleTypes.DUST) {
             return false;
         }
-        if (!(p.getParameters() instanceof DustParticleEffect)) {
+        if (!(p.getParticle() instanceof DustParticleOptions)) {
             return false;
         }
         if (p.getCount() != 0) {
             return false;
         }
-        return approx(p.getSpeed(), 1.0f, 1.0E-4f);
+        return approx(p.getMaxSpeed(), 1.0f, 1.0E-4f);
     }
 
-    public static boolean isSpadeLava(ParticleS2CPacket p) {
-        if (p.getParameters().getType() != ParticleTypes.LAVA) {
+    public static boolean isSpadeLava(ClientboundLevelParticlesPacket p) {
+        if (p.getParticle().getType() != ParticleTypes.LAVA) {
             return false;
         }
         if (p.getCount() != 2) {
             return false;
         }
-        return approx(p.getSpeed(), -0.5f, 1.0E-4f);
+        return approx(p.getMaxSpeed(), -0.5f, 1.0E-4f);
     }
 
-    public static IntRange arrowRange(ParticleS2CPacket p) {
-        float ox = p.getOffsetX();
-        float oy = p.getOffsetY();
+    public static IntRange arrowRange(ClientboundLevelParticlesPacket p) {
+        float ox = p.getXDist();
+        float oy = p.getYDist();
         if (approx(oy, 128.0f, 1.0E-4f)) {
             return new IntRange(0, 117);
         }

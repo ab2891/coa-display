@@ -2,8 +2,7 @@ package com.ab2891.coadisplay.chat;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
@@ -16,7 +15,7 @@ public final class ClientScheduler {
         this.tasks.addLast(new Task(runAtMs, action));
     }
 
-    public void tick(MinecraftClient client) {
+    public void tick(Minecraft client) {
         if (this.tasks.isEmpty()) {
             return;
         }

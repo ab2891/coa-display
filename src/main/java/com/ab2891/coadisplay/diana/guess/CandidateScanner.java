@@ -2,11 +2,10 @@ package com.ab2891.coadisplay.diana.guess;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.World;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +13,17 @@ import java.util.List;
 public final class CandidateScanner {
     private static final double STEP = 1.0;
 
-    public List<Candidate> scan(World world, Ray ray, IntRange range) {
+    public List<Candidate> scan(Level world, Ray ray, IntRange range) {
         ArrayList<Candidate> out = new ArrayList<>(256);
         for (double d = (double) range.min(); d <= (double) range.max(); d += STEP) {
-            Vec3d p = ray.origin().add(ray.dir().multiply(d));
+            Vec3 p = ray.origin().add(ray.dir().scale(d));
             int x = (int) Math.floor(p.x);
             int z = (int) Math.floor(p.z);
-            boolean loaded = world.isChunkLoaded(new BlockPos(x, 0, z));
+            boolean loaded = world.hasChunkAt(new BlockPos(x, 0, z));
             if (loaded) {
-                BlockPos topAir = world.getTopPosition(Heightmap.Type.MOTION_BLOCKING, new BlockPos(x, 0, z));
-                BlockPos ground = topAir.down();
-                Vec3d center = new Vec3d(
+                BlockPos topAir = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(x, 0, z));
+                BlockPos ground = topAir.below();
+                Vec3 center = new Vec3(
                         (double) ground.getX() + 0.5,
                         (double) ground.getY() + 0.5,
                         (double) ground.getZ() + 0.5
@@ -41,10 +40,10 @@ public final class CandidateScanner {
         return out;
     }
 
-    private double distancePointToRay(Vec3d point, Ray ray) {
-        Vec3d v = point.subtract(ray.origin());
-        double t = v.dotProduct(ray.dir());
-        Vec3d proj = ray.origin().add(ray.dir().multiply(t));
+    private double distancePointToRay(Vec3 point, Ray ray) {
+        Vec3 v = point.subtract(ray.origin());
+        double t = v.dot(ray.dir());
+        Vec3 proj = ray.origin().add(ray.dir().scale(t));
         return point.distanceTo(proj);
     }
 

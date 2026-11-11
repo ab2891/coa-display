@@ -4,10 +4,9 @@ import com.ab2891.coadisplay.crown.CrownCache;
 import com.coadisplay.config.CoaConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import java.text.NumberFormat;
 
 @Environment(EnvType.CLIENT)
@@ -17,7 +16,7 @@ public final class CrownHud {
     private CrownHud() {
     }
 
-    public static void render(DrawContext ctx, RenderTickCounter tickCounter, CoaConfig cfg, CrownCache cache) {
+    public static void render(GuiGraphicsExtractor ctx, DeltaTracker tickCounter, CoaConfig cfg, CrownCache cache) {
         if (!cfg.enabled) {
             return;
         }
@@ -27,6 +26,6 @@ public final class CrownHud {
         }
         String value = NF.format(coins);
         String text = cfg.showLabel ? "Crown: " + value : value;
-        ctx.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, text, cfg.x, cfg.y, -1);
+        ctx.text(Minecraft.getInstance().font, text, cfg.x, cfg.y, -1);
     }
 }

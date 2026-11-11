@@ -20,11 +20,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 @Environment(EnvType.CLIENT)
 public final class CoaDisplayClient implements ClientModInitializer {
@@ -34,7 +33,7 @@ public final class CoaDisplayClient implements ClientModInitializer {
     private static final ClientScheduler SCHEDULER = new ClientScheduler();
     public static DianaFeature DIANA = new DianaFeature();
     private static long lastCoins = Long.MIN_VALUE;
-    private static KeyBinding DIANA_DEBUG_KEY;
+    private static KeyMapping DIANA_DEBUG_KEY;
 
     @Override
     public void onInitializeClient() {
@@ -49,10 +48,10 @@ public final class CoaDisplayClient implements ClientModInitializer {
             }
             SCHEDULER.tick(client);
 
-            while (DIANA_DEBUG_KEY != null && DIANA_DEBUG_KEY.wasPressed()) {
+            while (DIANA_DEBUG_KEY != null && DIANA_DEBUG_KEY.consumeClick()) {
                 if (DIANA == null || client.player == null) continue;
-                Vec3d origin = new Vec3d(client.player.getX(), client.player.getY() + 2.0, client.player.getZ());
-                Vec3d dir = client.player.getRotationVec(1.0f);
+                Vec3 origin = new Vec3(client.player.getX(), client.player.getY() + 2.0, client.player.getZ());
+                Vec3 dir = client.player.getViewVector(1.0f);
                 DIANA.debugInject(origin, dir);
             }
 
@@ -71,7 +70,7 @@ public final class CoaDisplayClient implements ClientModInitializer {
                 return;
             }
 
-            ItemStack helmet = client.player.getEquippedStack(EquipmentSlot.HEAD);
+            ItemStack helmet = client.player.getItemBySlot(EquipmentSlot.HEAD);
             String uuid = SkyblockNbt.getUniqueItemID(helmet);
             long coins = opt;
 

@@ -13,9 +13,9 @@ import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 @Environment(EnvType.CLIENT)
 public final class CoaConfigScreen {
@@ -27,31 +27,31 @@ public final class CoaConfigScreen {
         CoaConfig live = CoaDisplayClient.CONFIG;
 
         return YetAnotherConfigLib.createBuilder()
-                .title(Text.literal("Crown of Avarice HUD"))
+                .title(Component.literal("Crown of Avarice HUD"))
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.literal("General"))
+                        .name(Component.literal("General"))
                         .group(OptionGroup.createBuilder()
-                                .name(Text.literal("HUD"))
+                                .name(Component.literal("HUD"))
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.literal("Enabled"))
-                                        .description(OptionDescription.of(Text.literal("Show crown progress on HUD.")))
+                                        .name(Component.literal("Enabled"))
+                                        .description(OptionDescription.of(Component.literal("Show crown progress on HUD.")))
                                         .binding(defaults.enabled, () -> live.enabled, v -> live.enabled = v)
                                         .controller(BooleanControllerBuilder::create)
                                         .build())
                                 .option(Option.<Integer>createBuilder()
-                                        .name(Text.literal("X"))
+                                        .name(Component.literal("X"))
                                         .binding(defaults.x, () -> live.x, v -> live.x = v)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(0, 500).step(1))
                                         .build())
                                 .option(Option.<Integer>createBuilder()
-                                        .name(Text.literal("Y"))
+                                        .name(Component.literal("Y"))
                                         .binding(defaults.y, () -> live.y, v -> live.y = v)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(0, 300).step(1))
                                         .build())
                                 .option(ButtonOption.createBuilder()
-                                        .name(Text.literal("Move HUD\u2026"))
-                                        .description(OptionDescription.of(Text.literal("Drag the HUD text to position it.")))
-                                        .action((yaclScreen, button) -> MinecraftClient.getInstance().setScreen(new HudMoveScreen(yaclScreen)))
+                                        .name(Component.literal("Move HUD\u2026"))
+                                        .description(OptionDescription.of(Component.literal("Drag the HUD text to position it.")))
+                                        .action((yaclScreen, button) -> Minecraft.getInstance().setScreen(new HudMoveScreen(yaclScreen)))
                                         .build())
                                 .build())
                         .build())

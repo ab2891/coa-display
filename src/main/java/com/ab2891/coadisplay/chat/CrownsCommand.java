@@ -3,7 +3,7 @@ package com.ab2891.coadisplay.chat;
 import com.ab2891.coadisplay.stats.StatsManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 @Environment(EnvType.CLIENT)
 public final class CrownsCommand implements ChatCommand {
@@ -13,11 +13,11 @@ public final class CrownsCommand implements ChatCommand {
     }
 
     @Override
-    public void run(MinecraftClient client, String senderPlain, String[] args) {
-        if (client.getNetworkHandler() == null) {
+    public void run(Minecraft client, String senderPlain, String[] args) {
+        if (client.getConnection() == null) {
             return;
         }
         int completed = StatsManager.get().crownsCompleted;
-        client.getNetworkHandler().sendChatCommand("pc Crowns completed: " + completed);
+        client.getConnection().sendCommand("pc Crowns completed: " + completed);
     }
 }

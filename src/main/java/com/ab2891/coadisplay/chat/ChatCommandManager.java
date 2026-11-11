@@ -2,8 +2,7 @@ package com.ab2891.coadisplay.chat;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ public final class ChatCommandManager {
         this.commands.put(command.trigger().toLowerCase(), command);
     }
 
-    public void onPartyChatLine(MinecraftClient client, String plainLine, ClientScheduler scheduler) {
+    public void onPartyChatLine(Minecraft client, String plainLine, ClientScheduler scheduler) {
         int colon = plainLine.lastIndexOf(":");
         if (colon < 0) {
             return;

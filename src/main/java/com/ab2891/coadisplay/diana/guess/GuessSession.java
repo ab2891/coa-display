@@ -5,12 +5,11 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,20 +28,20 @@ public final class GuessSession {
     private BlockPos lastGuess = null;
     private double lastConfidence = 0.0;
     private IntRange range = null;
-    private final ArrayList<Vec3d> dust = new ArrayList<>();
+    private final ArrayList<Vec3> dust = new ArrayList<>();
     private long lastDustMs = 0L;
     private final ArrowShaftDetector detector = new ArrowShaftDetector();
     private long lastPrintMs = 0L;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public void onTick(MinecraftClient client) {
+    public void onTick(Minecraft client) {
         if (this.lastDustMs != 0L && System.currentTimeMillis() - this.lastDustMs > 1500L) {
             this.beginAttempt();
         }
     }
 
-    public void onParticle(ParticleS2CPacket packet) {
+    public void onParticle(ClientboundLevelParticlesPacket packet) {
         boolean arrow = PacketFilters.isArrowDust(packet);
         boolean lava = PacketFilters.isSpadeLava(packet);
         if (!arrow && !lava) {
@@ -56,7 +55,7 @@ public final class GuessSession {
                     return;
                 }
             }
-            Vec3d p = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
+            Vec3 p = new Vec3(packet.getX(), packet.getY(), packet.getZ());
             this.dust.add(p);
             this.lastDustMs = System.currentTimeMillis();
 
@@ -69,8 +68,8 @@ public final class GuessSession {
                 return;
             }
 
-            MinecraftClient mc = MinecraftClient.getInstance();
-            World world = mc.world;
+            Minecraft mc = Minecraft.getInstance();
+            Level world = mc.level;
             if (world == null) {
                 return;
             }
@@ -142,7 +141,7 @@ public final class GuessSession {
         }
 
         List<Map<String, Double>> particles = new ArrayList<>();
-        for (Vec3d p : this.dust) {
+        for (Vec3 p : this.dust) {
             particles.add(vec3dToMap(p));
         }
         entry.put("dustParticles", particles);
@@ -151,12 +150,12 @@ public final class GuessSession {
         saveDataEntry(entry);
     }
 
-    public void debugInjectSyntheticArrow(Vec3d origin, Vec3d dirIgnored) {
+    public void debugInjectSyntheticArrow(Vec3 origin, Vec3 dirIgnored) {
         this.beginAttempt();
         this.range = new IntRange(281, 600);
-        Vec3d dir = new Vec3d(1.0, 0.0, 0.0);
+        Vec3 dir = new Vec3(1.0, 0.0, 0.0);
         for (int i = 0; i < 20; ++i) {
-            Vec3d p = origin.add(dir.multiply((double) i * 0.05));
+            Vec3 p = origin.add(dir.scale((double) i * 0.05));
             this.dust.add(p);
         }
         this.lastDustMs = System.currentTimeMillis();
@@ -172,12 +171,12 @@ public final class GuessSession {
         if (ray == null) {
             return;
         }
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) {
             System.out.println("[Diana][dbg] world is null");
             return;
         }
-        List<Candidate> candidates = this.scanner.scan(mc.world, ray, this.range);
+        List<Candidate> candidates = this.scanner.scan(mc.level, ray, this.range);
         System.out.println("[Diana][dbg] candidates=" + candidates.size());
         if (candidates.isEmpty()) {
             return;
@@ -190,7 +189,7 @@ public final class GuessSession {
                 + " secondScore=" + (ranked.size() > 1 ? ranked.get(1).score : -1.0));
     }
 
-    private static Map<String, Double> vec3dToMap(Vec3d v) {
+    private static Map<String, Double> vec3dToMap(Vec3 v) {
         Map<String, Double> m = new HashMap<>();
         m.put("x", v.x);
         m.put("y", v.y);

@@ -2,15 +2,15 @@ package com.ab2891.coadisplay.config;
 
 import com.ab2891.coadisplay.CoaDisplayClient;
 import com.coadisplay.config.CoaConfigManager;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.gui.Click;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 @Environment(EnvType.CLIENT)
 public final class HudMoveScreen extends Screen {
@@ -21,25 +21,25 @@ public final class HudMoveScreen extends Screen {
     private int dragOffsetY = 0;
 
     public HudMoveScreen(Screen parent) {
-        super(Text.literal("Move Crown HUD"));
+        super(Component.literal("Move Crown HUD"));
         this.parent = parent;
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         CoaConfigManager.save(CoaDisplayClient.CONFIG);
-        this.client.setScreen(this.parent);
+        this.minecraft.setScreen(this.parent);
     }
 
     @Override
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        super.render(ctx, mouseX, mouseY, delta);
-        ctx.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer,
+    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(ctx, mouseX, mouseY, delta);
+        ctx.centeredText(Minecraft.getInstance().font,
                 "Drag the text to reposition. ESC to save & exit.", this.width / 2, 15, -1);
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        TextRenderer tr = client.textRenderer;
-        int textW = tr.getWidth(PREVIEW);
+        Minecraft client = Minecraft.getInstance();
+        Font tr = client.font;
+        int textW = tr.width(PREVIEW);
         int textH = 9;
 
         int x = CoaDisplayClient.CONFIG.x;
@@ -51,30 +51,22 @@ public final class HudMoveScreen extends Screen {
 
         int pad = 2;
         ctx.fill(x - pad, y - pad, x + textW + pad, y + textH + pad, Integer.MIN_VALUE);
-        ctx.drawTextWithShadow(tr, PREVIEW, x, y, -1);
-        ctx.drawTextWithShadow(tr, "x=" + x + " y=" + y, 5, this.height - 15, -1);
+        ctx.text(tr, PREVIEW, x, y, -1);
+        ctx.text(tr, "x=" + x + " y=" + y, 5, this.height - 15, -1);
     }
 
-    // TODO: In 1.21.8, mouse/key input methods use new record-based input types
-    // (KeyInput, Click). The exact method signatures may need adjustment
-    // based on the Yarn mappings for this version. The decompiled code used
-    // class_11908 (KeyInput) and class_11909 (Click) with methods like
-    // method_74245() -> button(), comp_4798() -> x(), comp_4799() -> y(),
-    // comp_4795() -> key(). If these don't compile, adjust to match the actual
-    // Yarn-mapped Screen method signatures for 1.21.8.
-
     @Override
-    public boolean mouseClicked(Click click, boolean doubleClick) {
-        if (click.button() != 0) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubleClick) {
+        if (click.button() != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(click, doubleClick);
         }
-        MinecraftClient client = MinecraftClient.getInstance();
-        TextRenderer tr = client.textRenderer;
+        Minecraft client = Minecraft.getInstance();
+        Font tr = client.font;
         int x = CoaDisplayClient.CONFIG.x;
         int y = CoaDisplayClient.CONFIG.y;
         double mouseX = click.x();
         double mouseY = click.y();
-        int textW = tr.getWidth(PREVIEW);
+        int textW = tr.width(PREVIEW);
         int textH = 9;
 
         if (mouseX >= x && mouseX <= x + textW && mouseY >= y && mouseY <= y + textH) {
@@ -87,8 +79,8 @@ public final class HudMoveScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
-        if (this.dragging && click.button() == 0) {
+    public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
+        if (this.dragging && click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             CoaDisplayClient.CONFIG.x = (int) click.x() - this.dragOffsetX;
             CoaDisplayClient.CONFIG.y = (int) click.y() - this.dragOffsetY;
             return true;
@@ -97,20 +89,11 @@ public final class HudMoveScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
-        if (click.button() == 0) {
+    public boolean mouseReleased(MouseButtonEvent click) {
+        if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             this.dragging = false;
         }
         return super.mouseReleased(click);
-    }
-
-    @Override
-    public boolean keyPressed(KeyInput keyInput) {
-        if (keyInput.key() == 256) {
-            this.close();
-            return true;
-        }
-        return super.keyPressed(keyInput);
     }
 
     private static int clamp(int v, int min, int max) {

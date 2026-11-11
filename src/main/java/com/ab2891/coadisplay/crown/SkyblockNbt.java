@@ -2,10 +2,10 @@ package com.ab2891.coadisplay.crown;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
@@ -14,17 +14,17 @@ public final class SkyblockNbt {
     }
 
     @Nullable
-    public static NbtCompound getCustomData(ItemStack stack) {
-        NbtComponent custom = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
+    public static CompoundTag getCustomData(ItemStack stack) {
+        CustomData custom = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (custom.isEmpty()) {
             return null;
         }
-        return custom.copyNbt();
+        return custom.copyTag();
     }
 
     @Nullable
     public static Long getCollectedCoins(ItemStack stack) {
-        NbtCompound root = getCustomData(stack);
+        CompoundTag root = getCustomData(stack);
         if (root == null) {
             return null;
         }
@@ -33,7 +33,7 @@ public final class SkyblockNbt {
 
     @Nullable
     public static String getSkyblockId(ItemStack stack) {
-        NbtCompound ea = getCustomData(stack);
+        CompoundTag ea = getCustomData(stack);
         if (ea == null) {
             return null;
         }
@@ -47,7 +47,7 @@ public final class SkyblockNbt {
 
     @Nullable
     public static String getUniqueItemID(ItemStack stack) {
-        NbtCompound ea = getCustomData(stack);
+        CompoundTag ea = getCustomData(stack);
         if (ea == null) {
             return null;
         }
@@ -59,12 +59,12 @@ public final class SkyblockNbt {
     }
 
     public static void debugCustomData(ItemStack stack) {
-        NbtComponent custom = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
+        CustomData custom = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (custom.isEmpty()) {
             System.out.println("[CoA] CUSTOM_DATA is empty");
             return;
         }
-        NbtCompound root = custom.copyNbt();
+        CompoundTag root = custom.copyTag();
         System.out.println("[CoA] CUSTOM_DATA root=" + root);
     }
 }

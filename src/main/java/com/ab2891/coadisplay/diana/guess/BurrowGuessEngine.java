@@ -2,9 +2,8 @@ package com.ab2891.coadisplay.diana.guess;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ public class BurrowGuessEngine {
      * @param lavaParticles ordered list of lava particle positions
      * @return estimated burrow block position, or null if not enough data
      */
-    public BlockPos estimateBurrow(List<Vec3d> lavaParticles) {
+    public BlockPos estimateBurrow(List<Vec3> lavaParticles) {
         if (lavaParticles.size() < 4) {
             return null;
         }
@@ -52,7 +51,7 @@ public class BurrowGuessEngine {
         double[] yVals = new double[n];
         double[] zVals = new double[n];
         for (int i = 0; i < n; i++) {
-            Vec3d p = lavaParticles.get(i);
+            Vec3 p = lavaParticles.get(i);
             xVals[i] = p.x;
             yVals[i] = p.y;
             zVals[i] = p.z;

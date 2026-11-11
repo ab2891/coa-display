@@ -3,7 +3,7 @@ package com.ab2891.coadisplay.chat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 @Environment(EnvType.CLIENT)
 public final class ChatListener {
@@ -25,8 +25,8 @@ public final class ChatListener {
             if (!plain.contains("Party")) {
                 return;
             }
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.player == null || client.getNetworkHandler() == null) {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null || client.getConnection() == null) {
                 return;
             }
             this.manager.onPartyChatLine(client, plain, this.scheduler);

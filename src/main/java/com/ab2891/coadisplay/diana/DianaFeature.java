@@ -3,20 +3,20 @@ package com.ab2891.coadisplay.diana;
 import com.ab2891.coadisplay.diana.guess.GuessSession;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.world.phys.Vec3;
 
 @Environment(EnvType.CLIENT)
 public final class DianaFeature {
     private final GuessSession session = new GuessSession();
 
-    public void onParticlePacket(ParticleS2CPacket packet) {
+    public void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         this.session.onParticle(packet);
     }
 
-    public void onTick(MinecraftClient client) {
+    public void onTick(Minecraft client) {
         this.session.onTick(client);
     }
 
@@ -28,7 +28,7 @@ public final class DianaFeature {
         this.session.onBurrowDug(dug);
     }
 
-    public void debugInject(Vec3d origin, Vec3d dir) {
+    public void debugInject(Vec3 origin, Vec3 dir) {
         this.session.debugInjectSyntheticArrow(origin, dir);
     }
 }
